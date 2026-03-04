@@ -1,4 +1,4 @@
-const int SALIDAS [] = {10, 11, 12, 13}; // 10 es el menos significativo
+const int SALIDAS [] = {10, 11, 12, 13};
 
 const int INCREMENTO = 6;
 const int DECREMENTO = 7;
@@ -29,16 +29,13 @@ void loop(){
     estado_boton_incremento = digitalRead(INCREMENTO);
     estado_boton_decremento = digitalRead(DECREMENTO);
 
-    //Deberíamos tener 5 por defecto
     if (!estado_boton_incremento){
-        //Mantenemos el máximo para no irnos los 16bits
         if(contador < MAX){
             ++contador;
         }
 
     }
     else if (!estado_boton_decremento){
-        //Evitamos irnos en negativo
         if(contador > MIN){
             --contador;
         }
