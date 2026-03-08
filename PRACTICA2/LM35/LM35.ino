@@ -2,7 +2,7 @@ const int RELAY = 8;
 const int SENSOR = A0;
 
 
-const float UMBRAL_DE_TEMPERATURA = 33;
+const float UMBRAL_DE_TEMPERATURA = 29;
 
 const int SENSIBILIDAD_DEL_SENSOR = 10;
 const int REFERNCIA_TEMPERATURA = 25;
@@ -32,21 +32,18 @@ void loop() {
   float temperatura = calcular_temperatura(voltaje);
 
   // IMPRESIONES SERIALES
-  Serial.print("LECTURA SENSOR: ");
-  Serial.println(lectura);
+  Serial.print("\r\033[33mLECTURA SENSOR: ");
+  Serial.print(lectura);
 
-  Serial.print("VOLTAJE: ");
+  Serial.print("\033[34m  VOLTAJE: ");
   Serial.print(voltaje * 1000);
-  Serial.println(" mV");
+  Serial.print(" mV");
 
-  Serial.print("TEMPERATURA: ");
+  Serial.print("\033[35m  TEMPERATURA: ");
   Serial.print(temperatura);
-  Serial.println(" C");
-  Serial.println("");
-  Serial.println("");
+  Serial.print(" °C\033[0m");
 
-
-  if (temperatura < (UMBRAL_DE_TEMPERATURA - HISTERESIS)){
+  if (temperatura < (\034[mUMBRAL_DE_TEMPERATURA - HISTERESIS)){
     digitalWrite(RELAY, LOW);
   }
   else if (temperatura > (UMBRAL_DE_TEMPERATURA + HISTERESIS)){
