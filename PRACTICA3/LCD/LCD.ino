@@ -5,8 +5,8 @@ const int ENABLE = 3;
 const int SENSOR = 7;
 const int RESET = 4;
 
-const int CONTANDO = 0;
-const int NO_CONTANDO = 1;
+const int DESBLOQUEADO = 0;
+const int BLOQUEADO = 1;
 
 int contador =  0;
 int estado =  0;
@@ -25,17 +25,29 @@ void loop() {
   int reset = !digitalRead(RESET);
 
   if (reset){
+    lcd.setCursor(0,0);
+    lcd.print("RESET            ");
+    delay(300);
+    lcd.setCursor(0,0);
+    lcd.print("RESET.            ");
+    delay(300);
+    lcd.setCursor(0,0);
+    lcd.print("RESET..            ");
+    delay(300);
+    lcd.setCursor(0,0);
+    lcd.print("RESET...            ");        
+    delay(400);
     contador = 0;
   }
 
   if(objeto){
-    if(estado == CONTANDO){
+    if(estado == DESBLOQUEADO){
       contador++;
-      estado = NO_CONTANDO;
+      estado = BLOQUEADO;
     }
   }
   else{
-    estado = CONTANDO;
+    estado = DESBLOQUEADO;
   }
 
   lcd.setCursor(0,0);
@@ -43,5 +55,5 @@ void loop() {
   lcd.print(contador);
   lcd.print("            ");
 
-  delay(100);
+  // delay(100);
 }
