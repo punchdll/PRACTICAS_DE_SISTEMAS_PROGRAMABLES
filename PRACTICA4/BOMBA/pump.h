@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 
-const uint8_t AUTO = 0;
-const uint8_t MANUAL = 1;
+typedef enum { AUTO, MANUAL } PumpMode;
 
 #endif

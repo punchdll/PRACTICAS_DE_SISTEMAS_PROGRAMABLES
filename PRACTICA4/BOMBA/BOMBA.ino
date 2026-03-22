@@ -8,8 +8,14 @@
 
 static LiquidCrystal_I2C lcd(0x27,16,2);
 
-static uint8_t mode = AUTO;
-static uint8_t filling = false;
+static const uint16_t DELAY = 1000;
+static const uint8_t HYSTERESIS = 1;
+
+static PumpMode mode = AUTO;
+
+static bool filling = false;
+
+static uint32_t previous_time = 0;
 
 void setup() {
   Wire.begin();
@@ -34,11 +40,6 @@ void setup() {
 
 void loop() {
 
-  uint8_t distancia = hcsr04_centimeter(ECHO, TRIGGER);
-  uint8_t porcentaje = container_percent(distancia);
-  uint8_t nivel = container_level(porcentaje);
-
-  // Serial.print(distancia);
 
   if (!digitalRead(B_START)){
     mode = MANUAL;
@@ -54,40 +55,57 @@ void loop() {
     mode = AUTO;
   }
 
+  uint32_t current_time = millis();
+
+  if(current_time - previous_time >= DELAY){
+    previous_time = current_time;
+
+    uint8_t distancia = hcsr04_centimeter(ECHO, TRIGGER);
+    uint8_t porcentaje = container_percent(distancia);
+    uint8_t nivel = container_level(porcentaje);
+
+    // Serial.print(distancia);
+
   if (mode == AUTO){
-    if (porcentaje >= CONTAINER_MAX_PERCENT){
+    if (porcentaje == PERCENT_ERROR || porcentaje > (CONTAINER_MAX_PERCENT + HYSTERESIS)){
       digitalWrite(SELECTOR, LOW);
       filling = false;
     }
-    else{
+    else if (porcentaje < (CONTAINER_MAX_PERCENT - HYSTERESIS)){
       digitalWrite(SELECTOR, HIGH);
       filling = true;
     }
   }
 
-  if(nivel == CONTAINER_HIGH){
-    digitalWrite(HIGH_INDICATOR, HIGH);
-    digitalWrite(LOW_INDICATOR, LOW);
-  }
-  else{
-    digitalWrite(LOW_INDICATOR, HIGH);
-    digitalWrite(HIGH_INDICATOR, LOW);    
-  }
-  
-  lcd.setCursor(0, 0);
-  lcd.print(F("Porcentaje: "));
-  lcd.print(porcentaje);
-  lcd.print(F("%    "));
+    if(nivel == CONTAINER_HIGH){
+      digitalWrite(HIGH_INDICATOR, HIGH);
+      digitalWrite(LOW_INDICATOR, LOW);
+    }
+    else{
+      digitalWrite(LOW_INDICATOR, HIGH);
+      digitalWrite(HIGH_INDICATOR, LOW);    
+    }
+    
+    lcd.setCursor(0, 0);
+    lcd.print(F("Porcentaje: "));
 
-  lcd.setCursor(0, 1);
-  lcd.print(F("Nivel: "));
-  lcd.print(nivel == CONTAINER_LOW ? "bajo   " : "alto   ");
+    if (porcentaje == PERCENT_ERROR) {
+      lcd.print("ERR    ");
+    } else {
+      lcd.print(porcentaje);
+      lcd.print(F("%    "));
+    }
 
-  lcd.setCursor(12, 1);
-  lcd.print(F("M~"));
-  lcd.print(mode == AUTO ? F("A") : F("M"));
-  
-  lcd.setCursor(15, 1);
-  lcd.print(filling ? F("^") : F("-"));
-  delay(1000);
+    lcd.setCursor(0, 1);
+    lcd.print(F("Nivel: "));
+    lcd.print(nivel == CONTAINER_LOW ? "bajo   " : "alto   ");
+
+    lcd.setCursor(12, 1);
+    lcd.print(F("M~"));
+    lcd.print(mode == AUTO ? F("A") : F("M"));
+    
+    lcd.setCursor(15, 1);
+    lcd.print(filling ? F("^") : F("-"));
+  }
+
 }
