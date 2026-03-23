@@ -5,14 +5,16 @@
 
 #define PERCENT_ERROR  255
 
-static const uint8_t DEPTH = 9; // Profundidad del contendedor
+static const uint8_t DEPTH = 90; // Profundidad del contendedor
+static const uint8_t BLIND_SPOT = 20; // Valor minimo de la lectura a nivel fisico
+
 static const uint8_t LEVEL_T = 30; // Umbral de nivel bajo/alto
 static const uint8_t CONTAINER_MAX_PERCENT = 70; // Nivel maximo de llenado 
-static const uint8_t BLIND_SPOT = 2; // Valor minimo de la lectura a nivel fisico
+
 static const uint8_t CONTAINER_LOW = 0;
 static const uint8_t CONTAINER_HIGH = 1;
 
-inline uint8_t container_percent(uint8_t distance){
+inline uint8_t container_percent(uint16_t distance){
     
     if (distance == 0)
         return PERCENT_ERROR;

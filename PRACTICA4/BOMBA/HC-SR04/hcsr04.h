@@ -18,9 +18,9 @@ inline uint16_t hcsr04_read(const uint8_t echo, const uint8_t trigger){
   return pulseIn(echo, HIGH, TIMEOUT);
 }
 
-inline uint8_t hcsr04_centimeter(const uint8_t echo, const uint8_t trigger){
-  return hcsr04_read(echo, trigger) / FIXED_SOS;
+inline uint16_t hcsr04_millimeter(const uint8_t echo, const uint8_t trigger){
+    uint32_t raw_time = hcsr04_read(echo, trigger);
+    return (uint16_t)((raw_time * 10) / FIXED_SOS); 
 }
-
 
 #endif

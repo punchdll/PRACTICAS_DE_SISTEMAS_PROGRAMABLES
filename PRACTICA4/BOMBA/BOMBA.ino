@@ -60,7 +60,7 @@ void loop() {
   if(current_time - previous_time >= DELAY){
     previous_time = current_time;
 
-    uint8_t distancia = hcsr04_centimeter(ECHO, TRIGGER);
+    uint16_t distancia = hcsr04_millimeter(ECHO, TRIGGER);
     uint8_t porcentaje = container_percent(distancia);
     uint8_t nivel = container_level(porcentaje);
 
