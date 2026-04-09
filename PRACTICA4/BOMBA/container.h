@@ -5,30 +5,41 @@
 
 #define PERCENT_ERROR  255
 
-static const uint8_t DEPTH = 90; // Profundidad del contendedor
-static const uint8_t BLIND_SPOT = 20; // Valor minimo de la lectura a nivel fisico
+static  uint8_t container_depth = 90; // Profundidad del contendedor por defecto
+static const uint8_t container_BLIND_SPOT = 20; // Valor minimo de la lectura a nivel fisico
 
-static const uint8_t LEVEL_T = 30; // Umbral de nivel bajo/alto
-static const uint8_t CONTAINER_MAX_PERCENT = 70; // Nivel maximo de llenado 
+static const uint8_t container_LEVEL_T = 90; // Umbral de nivel bajo/alto
+static const uint8_t container_MAX_PERCENT = container_LEVEL_T; // Nivel maximo de llenado (ej. 80%)
 
-static const uint8_t CONTAINER_LOW = 0;
-static const uint8_t CONTAINER_HIGH = 1;
+typedef enum {
+    container_LOW = 0,
+    container_HIGH = 1
+} Container_level;
 
 inline uint8_t container_percent(uint16_t distance){
     
     if (distance == 0)
         return PERCENT_ERROR;
-    
-    if (distance >= DEPTH) 
-        return 0;
-        
-    if (distance <= BLIND_SPOT)
-        return 100;
 
-  return 100 - (uint8_t)((uint16_t)(distance-BLIND_SPOT) * 100 / (DEPTH-BLIND_SPOT));
+    float effective_depth = (float)container_depth - container_BLIND_SPOT;
+    float measured_distance_from_blind_spot = (float)distance - container_BLIND_SPOT;
+
+
+    if (measured_distance_from_blind_spot <= 0) {
+        return 100; 
+    }
+    if (measured_distance_from_blind_spot >= effective_depth) {
+        return 0; 
+    }
+    float percentage = 100.0f - (measured_distance_from_blind_spot * 100.0f / effective_depth);
+
+    if (percentage < 0.0f) return 0;
+    if (percentage > 100.0f) return 100;
+
+    return (uint8_t)percentage;
 }
 
 inline uint8_t container_level(uint8_t percent){
-    return (percent < LEVEL_T) ? CONTAINER_LOW : CONTAINER_HIGH;
+    return (percent < container_LEVEL_T) ? container_LOW : container_HIGH;
 }
 #endif

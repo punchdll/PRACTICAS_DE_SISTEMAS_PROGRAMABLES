@@ -11,6 +11,7 @@ static const uint8_t SELECTOR = 8; // Salida al selector de rele
 static const uint8_t B_START = 9; // Boton de llenado manual
 static const uint8_t B_AUTO = 10; //Modo de llenado automatico
 static const uint8_t B_STOP = 11; // Parada de llenado manual 
+static const uint8_t B_CALIBRATION = 7; // Parada de llenado manual 
 
 static const uint8_t HIGH_INDICATOR = 12; // Led indicador de nivel alto
 static const uint8_t LOW_INDICATOR = 13; // Led indicador de nivel bajo
