@@ -9,7 +9,7 @@
 static LiquidCrystal_I2C lcd(0x27,16,2);
 
 static const uint16_t DELAY = 60;
-static const uint8_t HYSTERESIS = 1;
+static const uint8_t HYSTERESIS = 0;
 static const uint8_t DEPTH_SAMPLES = 50;
 static float smoothed_distance = -1.0;    // -1.0 indica que no esta inicializado
 static PumpMode mode = MANUAL;
@@ -59,6 +59,7 @@ void loop() {
   else if (!digitalRead(B_CALIBRATION)){
     mode = MANUAL;
     filling = false;
+    digitalWrite(SELECTOR, LOW);
     lcd.clear();
     uint32_t sum_depth = 0;
     uint8_t valid_samples = 0;
@@ -74,7 +75,7 @@ void loop() {
       lcd.print(F("Lec. ("));
       lcd.print(i+1);
       lcd.print(F("): "));
-      lcd.print(current_reading);
+      lcd.print(current_reading-container_BLIND_SPOT);
       lcd.print(F("mm"));
       delay(20);
     }
@@ -87,7 +88,7 @@ void loop() {
       lcd.print(F("Calib. Fallida"));
     }
     lcd.setCursor(0, 1);
-    lcd.print(container_depth);
+    lcd.print(container_depth-container_BLIND_SPOT);
     lcd.print(F("mm  "));
     delay(1000);
     smoothed_distance = -1.0;
@@ -109,10 +110,10 @@ void loop() {
 
             if (filling) {
                 alpha = 0.3;
-                max_deviation = 30.0;
+                max_deviation = 50.0;
             } else {
                 alpha = 0.2;
-                max_deviation = 25.0;
+                max_deviation = 30.0;
             }
 
             // Aplicar el filtro EMA solo si la lectura es plausible.
@@ -153,12 +154,21 @@ void loop() {
     if (porcentaje == PERCENT_ERROR) {
       lcd.print("ERR    ");
     } else {
-      lcd.print(porcentaje);
-      lcd.print(F("% ["));
-      lcd.print(smoothed_distance != -1.0 ? (int)(container_depth - smoothed_distance): 0);
-      lcd.print(F("mm/")); 
-      lcd.print(container_depth - container_BLIND_SPOT); 
-      lcd.print(F("mm]"));
+lcd.print(porcentaje);
+    lcd.print(F("% ["));
+
+    int16_t effective_range = (int16_t)container_depth - container_BLIND_SPOT;
+    int16_t water_level = (int16_t)container_depth - (int16_t)smoothed_distance;
+    
+    if (water_level < 0)
+        water_level = 0;
+    else if (water_level > effective_range)
+        water_level = effective_range;
+
+    lcd.print(water_level);
+    lcd.print(F("mm/"));
+    lcd.print(effective_range);
+    lcd.print(F("mm]"));
     }
 
     lcd.setCursor(0, 1);
