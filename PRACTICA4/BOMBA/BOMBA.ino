@@ -9,18 +9,19 @@
 static LiquidCrystal_I2C lcd(0x27,16,2);
 
 static const uint16_t DELAY = 60;
-static const uint8_t HYSTERESIS = 0;
+// static const uint8_t HYSTERESIS = 0;
 static const uint8_t DEPTH_SAMPLES = 50;
-static float smoothed_distance = -1.0;    // -1.0 indica que no esta inicializado
+static float smoothed_distance = -1.0;    // -1.0 indica que no hay lecturas previas
 static PumpMode mode = MANUAL;
 static bool filling = false;
+static const uint8_t v_em = 30;
 
 static uint32_t previous_time = 0;
 
 void setup() {
   Wire.begin();
 
-  // Serial.begin(9600);
+  Serial.begin(9600);
 
   lcd.init();
   lcd.backlight();
@@ -77,7 +78,7 @@ void loop() {
       lcd.print(F("): "));
       lcd.print(current_reading-container_BLIND_SPOT);
       lcd.print(F("mm"));
-      delay(20);
+      delay(50);
     }
     lcd.clear();
     lcd.setCursor(0, 0);
@@ -109,11 +110,11 @@ void loop() {
             float max_deviation;
 
             if (filling) {
-                alpha = 0.3;
-                max_deviation = 50.0;
+                alpha = 0.8;
+                max_deviation = 60.0;
             } else {
-                alpha = 0.2;
-                max_deviation = 30.0;
+                alpha = 0.5;
+                max_deviation = 50.0;
             }
 
             // Aplicar el filtro EMA solo si la lectura es plausible.
@@ -128,10 +129,10 @@ void loop() {
     uint8_t nivel = container_level(porcentaje);
 
 
-    // Serial.print(distancia);
+    Serial.print(smoothed_distance);
 
   if (mode == AUTO){
-    if (porcentaje != PERCENT_ERROR && porcentaje < (container_MAX_PERCENT - HYSTERESIS)){
+    if (porcentaje != PERCENT_ERROR && porcentaje < v_em){
       digitalWrite(SELECTOR, HIGH);
       filling = true;
     }
@@ -173,7 +174,7 @@ lcd.print(porcentaje);
 
     lcd.setCursor(0, 1);
     lcd.print(F("Nivel: "));
-    lcd.print(nivel == container_LOW ? "bajo   " : "alto   ");
+    lcd.print(nivel == container_LOW ? "bajo   " : (nivel == container_MED)? "medi   ": "alto   ");
 
     lcd.setCursor(12, 1);
     lcd.print(F("M~"));

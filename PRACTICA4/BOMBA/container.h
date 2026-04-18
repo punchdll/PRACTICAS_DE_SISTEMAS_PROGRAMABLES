@@ -5,15 +5,16 @@
 
 #define PERCENT_ERROR  255
 
-static  uint8_t container_depth = 90; // Profundidad del contendedor por defecto
+static  uint8_t container_depth = 160; // Profundidad del contendedor por defecto
 static const uint8_t container_BLIND_SPOT = 20; // Valor minimo de la lectura a nivel fisico
 
-static const uint8_t container_LEVEL_T = 90; // Umbral de nivel bajo/alto
-static const uint8_t container_MAX_PERCENT = container_LEVEL_T; // Nivel maximo de llenado (ej. 80%)
+static const uint8_t container_LEVEL_T = 60; // Umbral de nivel bajo/medio
+static const uint8_t container_MAX_PERCENT = 80; // Nivel maximo de llenado / Nivel alto (ej. 90%)
 
 typedef enum {
-    container_LOW = 0,
-    container_HIGH = 1
+    container_LOW,
+    container_MED,
+    container_HIGH
 } Container_level;
 
 inline uint8_t container_percent(uint16_t distance){
@@ -40,6 +41,13 @@ inline uint8_t container_percent(uint16_t distance){
 }
 
 inline uint8_t container_level(uint8_t percent){
-    return (percent < container_LEVEL_T) ? container_LOW : container_HIGH;
+    if (percent < container_LEVEL_T){
+        return container_LOW;
+    }
+
+    if (percent < container_MAX_PERCENT){
+        return container_MED;
+    }
+    return container_HIGH;
 }
 #endif
